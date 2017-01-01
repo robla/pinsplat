@@ -1,5 +1,4 @@
-#!/usr/bin/env python -u
-# Run python in unbuffered mode, to use with tail-like apps
+#!/usr/bin/env python
 
 from __future__ import division
 import requests
@@ -8,16 +7,14 @@ import sys
 import codecs
 import locale
 
+def FIXMEOUT(string):
+    print(string)
+
 # use preferred encoding, even when piping output to another program or file
 sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
 
 def get_link_status(url):
-    headers = {'User-agent': 'Mozilla/5.0 ()'}
-    try:
-        r = requests.get(url, headers=headers)
-        return r.status_code
-    except (Exception) as e:
-        return '%s: %s' % (type(e).__name__, str(e)) 
+    return url
 
 def valid_link(status):
     return (status == requests.codes.ok)
@@ -40,6 +37,21 @@ def linkrot_summary_footer(num_bad_links, num_good_links):
 def invalid_link_message(status, link):
     return '- Invalid link (%s): [%s](%s)  ' % (status, link['description'], link['href'])
 
+def save_link(link):
+    import os
+    linkfilename = os.path.join('hash', link['hash'])
+    retval = json.dumps(link, indent=4)
+    with open(linkfilename, 'wt') as f:
+        f.write(retval)
+    import dateutil.parser
+    linkdate = dateutil.parser.parse(link['time'])
+    import time
+    linktimetuple = time.mktime(linkdate.timetuple())
+    os.utime(linkfilename, (linktimetuple, linktimetuple))
+    #FIXMEOUT(linkdate)
+    return retval
+    #return '- [%s](%s)  ' % (link['description'], link['href'])
+
 def process_links(links, ignore_tags):
     num_bad_links = 0
     num_links_processed = 0
@@ -50,10 +62,8 @@ def process_links(links, ignore_tags):
         for link in links:
             if ignored_link(link, ignore_tags): 
                 continue
-            status = get_link_status(link['href'])
-            if not valid_link(status):
-                print invalid_link_message(status, link)
-                num_bad_links += 1
+            #status = get_link_status(link['href'])
+            save_link(link)
             num_links_processed += 1
     except KeyboardInterrupt:
         print "\nProcessing cancelled..."
