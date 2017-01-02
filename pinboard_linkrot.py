@@ -37,9 +37,9 @@ def linkrot_summary_footer(num_bad_links, num_good_links):
 def invalid_link_message(status, link):
     return '- Invalid link (%s): [%s](%s)  ' % (status, link['description'], link['href'])
 
-def save_link(link):
+def save_link_json(link):
     import os
-    linkfilename = os.path.join('hash', link['hash'])
+    linkfilename = os.path.join('hash', link['hash'] + ".json")
     retval = json.dumps(link, indent=4)
     with open(linkfilename, 'wt') as f:
         f.write(retval)
@@ -51,6 +51,36 @@ def save_link(link):
     #FIXMEOUT(linkdate)
     return retval
     #return '- [%s](%s)  ' % (link['description'], link['href'])
+    
+def fix_date_on_file(linkfilename, linktimestring):
+    import dateutil.parser
+    import time, os
+    linkdate = dateutil.parser.parse(linktimestring)
+    linktimetuple = time.mktime(linkdate.timetuple())
+    os.utime(linkfilename, (linktimetuple, linktimetuple))
+    return linkdate
+
+def save_link_mime(link):
+    import os, copy
+
+    import email, sys, json
+    mimemsg = email.message_from_string("")
+
+    headers = copy.copy(link)
+    body = headers.pop(u'extended')
+
+    for hname, hval in headers.iteritems():
+        mimemsg[hname] = hval
+
+    mimemsg.set_payload(body.encode('utf-8'))
+
+    filename = os.path.join('hash', link['hash'] + ".mime")
+    with open(filename, 'wt') as f:
+        f.write(mimemsg.as_string())
+
+    linkdate = fix_date_on_file(filename, link['time'])
+    return True
+
 
 def process_links(links, ignore_tags):
     num_bad_links = 0
@@ -63,7 +93,8 @@ def process_links(links, ignore_tags):
             if ignored_link(link, ignore_tags): 
                 continue
             #status = get_link_status(link['href'])
-            save_link(link)
+            save_link_json(link)
+            save_link_mime(link)
             num_links_processed += 1
     except KeyboardInterrupt:
         print "\nProcessing cancelled..."
