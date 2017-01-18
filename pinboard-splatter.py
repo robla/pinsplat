@@ -6,6 +6,9 @@ import json
 import sys
 import codecs
 import locale
+import dateutil.parser
+import time, os
+
 
 def FIXMEOUT(string):
     print(string)
@@ -40,9 +43,7 @@ def save_link_json(link):
     retval = json.dumps(link, indent=4)
     with open(linkfilename, 'wt') as f:
         f.write(retval)
-    import dateutil.parser
     linkdate = dateutil.parser.parse(link['time'])
-    import time
     linktimetuple = time.mktime(linkdate.timetuple())
     os.utime(linkfilename, (linktimetuple, linktimetuple))
     #FIXMEOUT(linkdate)
@@ -50,8 +51,6 @@ def save_link_json(link):
     #return '- [%s](%s)  ' % (link['description'], link['href'])
     
 def fix_date_on_file(linkfilename, linktimestring):
-    import dateutil.parser
-    import time, os
     linkdate = dateutil.parser.parse(linktimestring)
     linktimetuple = time.mktime(linkdate.timetuple())
     os.utime(linkfilename, (linktimetuple, linktimetuple))
@@ -71,7 +70,9 @@ def save_link_mime(link):
 
     mimemsg.set_payload(body.encode('utf-8'))
 
-    filename = os.path.join('hash', 'mime', link['hash'] + ".mime")
+    linkdate = dateutil.parser.parse(link['time'])
+    linkdatestr = time.strftime("%Y-%m-%d", linkdate.timetuple())
+    filename = os.path.join('hash', 'mime', linkdatestr + "-" + link['hash'][:7] + ".mime")
     with open(filename, 'wt') as f:
         f.write(mimemsg.as_string())
 
