@@ -24,15 +24,12 @@ def ignored_link(link, ignore_tags):
     link_tags = link['tags'].split(' ')
     return True if ignore_tags.intersection(link_tags) else False 
 
-def linkrot_summary_header(ignore_tags):
-    msg = '#Pinboard linkrot results\n'
-    if ignore_tags:
-        msg += '\n**Ignored tags:** %s\n' % (', '.join(ignore_tags))
+def splatter_summary_header():
+    msg = '#Pinboard splatter results\n'
     return msg
 
-def linkrot_summary_footer(num_bad_links, num_good_links):
-    linkrot = int(num_bad_links/num_good_links*100)
-    return '\n%s%% linkrot (%s/%s)\n' % (linkrot, num_bad_links, num_good_links)
+def splatter_summary_footer(num_links):
+    return '\n%s Saved\n' % (num_links)
 
 def invalid_link_message(status, link):
     return '- Invalid link (%s): [%s](%s)  ' % (status, link['description'], link['href'])
@@ -86,13 +83,10 @@ def process_links(links, ignore_tags):
     num_bad_links = 0
     num_links_processed = 0
 
-    print linkrot_summary_header(ignore_tags)
+    print splatter_summary_header()
 
     try:
         for link in links:
-            if ignored_link(link, ignore_tags): 
-                continue
-            #status = get_link_status(link['href'])
             save_link_json(link)
             save_link_mime(link)
             num_links_processed += 1
@@ -100,7 +94,7 @@ def process_links(links, ignore_tags):
         print "\nProcessing cancelled..."
         pass
     
-    print linkrot_summary_footer(num_bad_links, num_links_processed)
+    print splatter_summary_footer(num_links_processed)
         
 def process_bookmarks_file(filename, ignore_tags = []):
     with open(filename) as f:
