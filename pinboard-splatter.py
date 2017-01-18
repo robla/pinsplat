@@ -39,7 +39,7 @@ def invalid_link_message(status, link):
 
 def save_link_json(link):
     import os
-    linkfilename = os.path.join('hash', link['hash'] + ".json")
+    linkfilename = os.path.join('hash', 'json', link['hash'] + ".json")
     retval = json.dumps(link, indent=4)
     with open(linkfilename, 'wt') as f:
         f.write(retval)
@@ -74,7 +74,7 @@ def save_link_mime(link):
 
     mimemsg.set_payload(body.encode('utf-8'))
 
-    filename = os.path.join('hash', link['hash'] + ".mime")
+    filename = os.path.join('hash', 'mime', link['hash'] + ".mime")
     with open(filename, 'wt') as f:
         f.write(mimemsg.as_string())
 
@@ -109,6 +109,7 @@ def process_bookmarks_file(filename, ignore_tags = []):
         
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print 'Usage: pinboard_linkrot.py <bookmarks.json> [space separated tags to ignore]'
+        print 'Usage: pinboard-splatter.py <bookmarks.json>'
+        print '  See zkw splatter for more'
         exit(1)
     process_bookmarks_file(sys.argv[1], sys.argv[2:])
