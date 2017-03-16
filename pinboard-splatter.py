@@ -8,7 +8,7 @@ import codecs
 import locale
 import dateutil.parser
 import time, os
-
+import calendar
 
 def FIXMEOUT(string):
     print(string)
@@ -52,8 +52,8 @@ def save_link_json(link):
     
 def fix_date_on_file(linkfilename, linktimestring):
     linkdate = dateutil.parser.parse(linktimestring)
-    linktimetuple = time.mktime(linkdate.timetuple())
-    os.utime(linkfilename, (linktimetuple, linktimetuple))
+    linktime_local = calendar.timegm(linkdate.timetuple())
+    os.utime(linkfilename, (time.time(), linktime_local))
     return linkdate
 
 def save_link_mime(link):
