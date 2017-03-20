@@ -58,7 +58,11 @@ def get_filename_from_mimemsg(mimemsg):
     tmpurl = mimemsg['href']
 
     fqdn = urllib.parse.urlparse(tmpurl).netloc
-    domainabbr = get_domain_abbr(fqdn)
+    scheme = urllib.parse.urlparse(tmpurl).scheme
+    if scheme == 'http' or scheme == 'https':
+        domainabbr = get_domain_abbr(fqdn)
+    else:
+        domainabbr = 'nodomain'
 
     tmpdate = mimemsg['time']
     ttup = dateutil.parser.parse(tmpdate).timetuple()
