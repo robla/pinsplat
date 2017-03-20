@@ -29,29 +29,49 @@ def sha1_3char_abbr(x):
         n, r = divmod(n, BASE)
         s.append(ALPHABET[r])
         if n == 0: break
+    while(len(s) < 3):
+        s.append(ALPHABET[0])
     return ''.join(reversed(s))
 
 
 def get_domain_abbr(fqdn):
     '''
-    Make a unique-ish 8-letter domain abbreviation for a fully qualified domain name
+    Make a unique-ish 8-letter domain abbreviation for a fully qualified
+    domain name
 
     The full abbreviation is calculated:
     1 - first letter of the domain
-    2-4 - next 3 consonants
+    2-4 - next 3 consonants (or less if there aren't that many)
     5 - last letter of the domain
     6-8 - base64 of the first couple of bytes of a SHA1
 
-    The goal is to balance uniqueness with readability and memorability.  This is probably waaaaay overthought ;-)
+    The goal is to balance uniqueness with readability and memorability.
+    This is probably waaaaay overthought ;-)
     '''
-    domain = fqdn.split('.')[-2]
-    if(domain == 'com' or domain == 'ac' or domain == 'org' or domain == 'co'):
-        domain = fqdn.split('.')[-3]
+    if fqdn == 'localhost':
+        return 'localhst'
+
+    domainbits = fqdn.split('.')
+    if domainbits[0] == 'www':
+        domainbits.pop(0)
+    if len(''.join(domainbits)) < 7 or len(domainbits[-1]) > 3:
+        domain = ''.join(domainbits)
+    elif len(''.join(domainbits[-2:-1])) < 7:
+        domain = ''.join(domainbits[-3:-1])
+    elif domainbits[-1] == 'com':
+        domain = domainbits[-2]
+    else:
+        domain = ''.join(domainbits[-2:-1])
+
     pt1 = domain[0]
-    pt2 = ''.join([x for x in domain[1:] if x not in 'aeiou'])[0:3]
+    pt2 = ''.join([x for x in domain[1:-1] if x not in 'aeiou'])[0:3]
     pt3 = domain[-1]
+    pt123 = pt1 + pt2 + pt3
+    while(len(pt123) < 5):
+        pt123 += '-'
     pt4 = sha1_3char_abbr(fqdn)
-    return pt1 + pt2 + pt3 + pt4
+    pt123 + pt4
+    return pt123 + pt4
 
 
 def get_filename_from_mimemsg(mimemsg):
@@ -68,6 +88,11 @@ def get_filename_from_mimemsg(mimemsg):
     ttup = dateutil.parser.parse(tmpdate).timetuple()
     datestr = time.strftime("%Y%m%d", ttup)
     timestr = get_base64_time(ttup)
+    retval = domainabbr + '-' + datestr + '-' + timestr
+    if not len(retval) == 21:
+        print("retval: " + retval, file=sys.stderr)
+        print("len: " + str(len(retval)), file=sys.stderr)
+        raise ValueError("{} is {}/21 chars".format(retval, len(retval)))
 
     return domainabbr + '-' + datestr + '-' + timestr
 
@@ -120,5 +145,3 @@ def main(argv=None):
 if __name__ == '__main__':
     exit_status = main(sys.argv)
     sys.exit(exit_status)
-
-
