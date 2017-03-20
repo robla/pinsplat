@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 #import sys, argparse, fileinput, bs4
-import argparse, email, fileinput, sys
+import argparse
+import email
+import fileinput
+import sys
 
 import dateutil.parser
 import hashlib
@@ -28,7 +31,8 @@ def sha1_3char_abbr(x):
     while True:
         n, r = divmod(n, BASE)
         s.append(ALPHABET[r])
-        if n == 0: break
+        if n == 0:
+            break
     while(len(s) < 3):
         s.append(ALPHABET[0])
     return ''.join(reversed(s))
@@ -100,26 +104,27 @@ def get_filename_from_mimemsg(mimemsg):
 def get_base64_digit(x):
     # some code adapted from http://stackoverflow.com/questions/561486/
     ALPHABET = string.ascii_uppercase + string.ascii_lowercase + \
-               string.digits + '-_'
+        string.digits + '-_'
     BASE = len(ALPHABET)
     r = x % BASE
     if x < 0 or x >= BASE:
-        raise BaseException(str(x) + ' is out of range to represent as single base64 digit')
+        raise BaseException(
+            str(x) + ' is out of range to represent as single base64 digit')
     return(ALPHABET[r])
 
 
 def get_base64_time(ttup):
     return get_base64_digit(ttup.tm_hour) + \
-            get_base64_digit(ttup.tm_min) + \
-            get_base64_digit(ttup.tm_sec)
+        get_base64_digit(ttup.tm_min) + \
+        get_base64_digit(ttup.tm_sec)
 
 
 def parse_arguments():
     """ see http://docs.python.org/library/argparse """
     parser = argparse.ArgumentParser(
         description='Print prettified htmlfile to stdout')
-    parser.add_argument('htmlfile', help='raw html to clean up', 
-        nargs='?', default=None)
+    parser.add_argument('htmlfile', help='raw html to clean up',
+                        nargs='?', default=None)
     return parser.parse_args()
 
 
@@ -136,7 +141,7 @@ def main(argv=None):
     print()
     print(' '.join(['[[' + tag + ']]' for tag in tags]))
     print()
-    print('[[' + mimemsg['href'] + '|' + mimemsg['description'] + ']]') 
+    print('[[' + mimemsg['href'] + '|' + mimemsg['description'] + ']]')
     print(mimemsg['time'])
     print()
     print(mimemsg.get_payload())
