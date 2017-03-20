@@ -1,19 +1,18 @@
 #!/usr/bin/env python
 
 from __future__ import division
-import requests
-import json
-import sys
-import codecs
-import locale
-import dateutil.parser
-import time
-import os
+import argparse
 import calendar
-
-
-def FIXMEOUT(string):
-    print(string)
+import codecs
+import copy
+import dateutil.parser
+import email
+import json
+import locale
+import os
+import requests
+import sys
+import time
 
 
 # use preferred encoding, even when piping output to another program or file
@@ -32,15 +31,6 @@ def ignored_link(link, ignore_tags):
     ignore_tags = set(ignore_tags)
     link_tags = link['tags'].split(' ')
     return True if ignore_tags.intersection(link_tags) else False
-
-
-def splatter_summary_header():
-    msg = '#Pinboard splatter results\n'
-    return msg
-
-
-def splatter_summary_footer(num_links):
-    return '\n%s Saved\n' % (num_links)
 
 
 def invalid_link_message(status, link):
@@ -69,12 +59,6 @@ def fix_date_on_file(linkfilename, linktimestring):
 
 
 def save_link_mime(link):
-    import os
-    import copy
-
-    import email
-    import sys
-    import json
     mimemsg = email.message_from_string("")
 
     headers = copy.copy(link)
@@ -100,8 +84,6 @@ def process_links(links, ignore_tags):
     num_bad_links = 0
     num_links_processed = 0
 
-    print splatter_summary_header()
-
     try:
         for link in links:
             save_link_json(link)
@@ -111,8 +93,6 @@ def process_links(links, ignore_tags):
         print "\nProcessing cancelled..."
         pass
 
-    print splatter_summary_footer(num_links_processed)
-
 
 def process_bookmarks_file(filename, ignore_tags=[]):
     with open(filename) as f:
@@ -120,9 +100,23 @@ def process_bookmarks_file(filename, ignore_tags=[]):
         process_links(bookmarks, ignore_tags)
 
 
+def parse_arguments():
+    """ see http://docs.python.org/library/argparse """
+    parser = argparse.ArgumentParser(
+        description='Splatter bookmarks file into little bitty ones. See zkw splatter for more')
+    parser.add_argument('bmkjson', help='bookmarks.json file', 
+        nargs='?', default=None)
+    return parser.parse_args()
+
+
+def main(argv=None):
+    """ zkw splatter"""
+
+    args = parse_arguments()
+
+    process_bookmarks_file(args.bmkjson)
+
+
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print 'Usage: pinboard-splatter.py <bookmarks.json>'
-        print '  See zkw splatter for more'
-        exit(1)
-    process_bookmarks_file(sys.argv[1], sys.argv[2:])
+    exit_status = main(sys.argv)
+    sys.exit(exit_status)
