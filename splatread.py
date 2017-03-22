@@ -92,13 +92,14 @@ def get_filename_from_mimemsg(mimemsg):
     ttup = dateutil.parser.parse(tmpdate).timetuple()
     datestr = time.strftime("%Y%m%d", ttup)
     timestr = get_base64_time(ttup)
-    retval = domainabbr + '-' + datestr + '-' + timestr
-    if not len(retval) == 21:
+    shortsum = '-' + mimemsg['hash'][0:7]
+    retval = domainabbr + '-' + datestr + '-' + timestr + shortsum
+    if not len(retval) == 29:
         print("retval: " + retval, file=sys.stderr)
         print("len: " + str(len(retval)), file=sys.stderr)
-        raise ValueError("{} is {}/21 chars".format(retval, len(retval)))
+        raise ValueError("{} is {}/29 chars".format(retval, len(retval)))
 
-    return domainabbr + '-' + datestr + '-' + timestr
+    return retval
 
 
 def get_base64_digit(x):
@@ -123,6 +124,8 @@ def parse_arguments():
     """ see http://docs.python.org/library/argparse """
     parser = argparse.ArgumentParser(
         description='Print prettified htmlfile to stdout')
+    parser.add_argument("-n", "--nameonly", help="get the filename, not everything",
+        action="store_true")
     parser.add_argument('htmlfile', help='raw html to clean up',
                         nargs='?', default=None)
     return parser.parse_args()
@@ -132,6 +135,14 @@ def main(argv=None):
     """ <http://www.crummy.com/software/BeautifulSoup/> prettify"""
 
     args = parse_arguments()
+    if args.nameonly:
+        with open(args.htmlfile, 'r') as f:
+            splatstr = f.read()
+        f.closed
+        mimemsg = email.message_from_string(splatstr)
+        print(get_filename_from_mimemsg(mimemsg))
+        sys.exit()
+
     splatstr = "".join(fileinput.input())
     mimemsg = email.message_from_string(splatstr)
 
