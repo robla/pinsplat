@@ -13,7 +13,7 @@ import os
 import requests
 import sys
 import time
-
+import splatread
 
 # use preferred encoding, even when piping output to another program or file
 sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.stdout)
@@ -71,8 +71,11 @@ def save_link_mime(link):
 
     linkdate = dateutil.parser.parse(link['time'])
     linkdatestr = time.strftime("%Y-%m-%d", linkdate.timetuple())
-    filename = os.path.join('hash', 'mime', linkdatestr +
-                            "-" + link['hash'][:7] + ".mime")
+    #filename = os.path.join('hash', 'mimetmp', linkdatestr +
+    #                        "-" + link['hash'][:7] + ".mime")
+    splatpart = splatread.get_filename_from_mimemsg(mimemsg)
+    filename = os.path.join('hash', 'mime', splatpart + ".mime")
+
     with open(filename, 'wt') as f:
         f.write(mimemsg.as_string())
 
