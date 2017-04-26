@@ -110,7 +110,8 @@ def main(argv=None):
     export_fullname = os.path.join(export_stage, export_basename)
 
     # update pinboard-export
-    shutil.copy(wget_target, 'pinboard-export.json')
+    if fetchflag or args.dest:
+        shutil.copy(wget_target, 'pinboard-export.json')
 
     message =  'automatic update from ' + filepart
 
