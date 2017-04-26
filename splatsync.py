@@ -17,6 +17,11 @@ def parse_arguments():
         description='Sync Pinboard with local data')
     parser.add_argument('dest', help='optional download destination', 
         nargs='*', default=None)
+    parser.add_argument('--nocommit', help='no commits to git repos',
+        action="store_true")
+    parser.add_argument('--nofetch', help='no retrieving export from pinboard.in',
+        action="store_true")
+
     return parser.parse_args()
 
 
@@ -43,7 +48,7 @@ def epoch_minusb():
 
 # TODO - turn pinboard_splatter into library that I can import easily
 # TODO - port (back) to python3
-def run_pinboard_splatter(exportfile, message):
+def run_pinboard_splatter(exportfile, message, commitflag):
     config = load_config_file()
 
     # splatter data
@@ -54,13 +59,17 @@ def run_pinboard_splatter(exportfile, message):
     if(True):
         out_bytes = subprocess.check_output(['pinsplat', exportfile])
 
-    repo = git.Repo('.')
-    regexp = re.compile(r'(hash/json/|hash/mime/)')
-    addthese = [x for x in repo.untracked_files if regexp.match(x)]
-    modded = [x.a_path for x in repo.index.diff(None).iter_change_type('M')]
-    repo.index.add(addthese)
-    repo.index.add(modded)
-    repo.index.commit(message)
+    if commitflag:
+        repo = git.Repo('.')
+        regexp = re.compile(r'(hash/json/|hash/mime/)')
+        addthese = [x for x in repo.untracked_files if regexp.match(x)]
+        modded = [x.a_path for x in repo.index.diff(None).iter_change_type('M')]
+
+        if (len(addthese) + len(modded)) > 0:
+            repo.index.add(addthese)
+            repo.index.add(modded)
+            repo.index.commit(message)
+
     return True
 
 
@@ -69,6 +78,8 @@ def main(argv=None):
 
     # initialize all the configuration
     args = parse_arguments()
+    commitflag = (not args.nocommit)
+    fetchflag = (not args.nofetch)
     config = load_config_file()
     pbauthkey = get_pinboard_apitoken(config)
     timepart = epoch_minusb()
@@ -82,12 +93,12 @@ def main(argv=None):
     baseurl = 'https://api.pinboard.in/v1/posts/all?format=json'
     authpart = '&auth_token=' + pbauthkey
 
-    if(args.dest):
-        wget_target = args.dest[0]
+    if args.dest:
+        wget_target = os.path.join(os.getcwd(), args.dest[0])
         filepart = os.path.basename(args.dest[0])
 
     # get the export from pinboard.in
-    if(True):
+    if fetchflag:
         pinboardjson = urllib.request.URLopener()
         pinboardjson.retrieve(baseurl + authpart, wget_target)
 
@@ -99,19 +110,22 @@ def main(argv=None):
     export_fullname = os.path.join(export_stage, export_basename)
 
     # update pinboard-export
-    if(True):
-        shutil.copy(wget_target, 'pinboard-export.json')
-    
+    shutil.copy(wget_target, 'pinboard-export.json')
+
     message =  'automatic update from ' + filepart
 
     # check in the result
-    if(True):
+    if commitflag:
         repo = git.Repo('.')
         index = repo.index
-        index.add(['pinboard-export.json'])
-        index.commit(message)
+        modded = [x.a_path for x in repo.index.diff(None).iter_change_type('M')]
+        if len(modded) > 0:
+            index.add(['pinboard-export.json'])
+            index.commit(message)
+    else:
+        print('no commit')
 
-    run_pinboard_splatter(export_fullname, message)
+    run_pinboard_splatter(export_fullname, message, commitflag)
 
 
 if __name__ == '__main__':
