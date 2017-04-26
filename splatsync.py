@@ -57,7 +57,9 @@ def run_pinboard_splatter(exportfile, message):
     repo = git.Repo('.')
     regexp = re.compile(r'(hash/json/|hash/mime/)')
     addthese = [x for x in repo.untracked_files if regexp.match(x)]
+    modded = [x.a_path for x in repo.index.diff(None).iter_change_type('M')]
     repo.index.add(addthese)
+    repo.index.add(modded)
     repo.index.commit(message)
     return True
 
