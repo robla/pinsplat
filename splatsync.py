@@ -8,7 +8,10 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 import urllib.request
+
+from base10x60timestamp.b1060time import get_b1060_timestamp_from_epoch
 
 
 def parse_arguments():
@@ -38,12 +41,6 @@ def get_pinboard_apitoken(config):
     api_token = config.get("authentication", "api_token")
 
     return api_token
-
-
-# TODO - turn epoch into a library that I can import easily
-def epoch_minusb():
-    out_bytes = subprocess.check_output(['epoch','-b'])
-    return out_bytes.decode("utf8").split('\n')[0]
 
 
 # TODO - turn pinboard_splatter into library that I can import easily
@@ -82,11 +79,11 @@ def main(argv=None):
     fetchflag = (not args.nofetch)
     config = load_config_file()
     pbauthkey = get_pinboard_apitoken(config)
-    timepart = epoch_minusb()
+    b1060str = get_b1060_timestamp_from_epoch(time.time())
 
     backupdir = config.get("backup", "backup_dir")
 
-    filepart = "pinboard_export-" + timepart + ".json"
+    filepart = "pinboard_export-" + b1060str + ".json"
 
     wget_target = os.path.join(backupdir, filepart)
 
