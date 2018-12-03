@@ -85,18 +85,20 @@ def main(argv=None):
 
     filepart = "pinboard_export-" + b1060str + ".json"
 
-    wget_target = os.path.join(backupdir, filepart)
+    pbexportfile = os.path.join(backupdir, filepart)
 
     baseurl = 'https://api.pinboard.in/v1/posts/all?format=json'
     authpart = '&auth_token=' + pbauthkey
 
     if args.dest:
-        wget_target = os.path.join(os.getcwd(), args.dest[0])
+        pbexportfile = os.path.join(os.getcwd(), args.dest[0])
         filepart = os.path.basename(args.dest[0])
 
     # get the export from pinboard.in
+    # fetchflag is true by default, and false if --nofetch is given
+    # on commandline.  When false, read from local pbexportfile 
     if fetchflag:
-        urllib.request.urlretrieve(baseurl + authpart, wget_target)
+        urllib.request.urlretrieve(baseurl + authpart, pbexportfile)
 
     # set up the staging area
     export_stage = config.get("backup", "export_stage")
@@ -107,11 +109,13 @@ def main(argv=None):
 
     # update pinboard-export
     if fetchflag or args.dest:
-        shutil.copy(wget_target, 'pinboard-export.json')
+        shutil.copy(pbexportfile, 'pinboard-export.json')
 
     message =  'automatic update from ' + filepart
 
     # check in the result
+    # commitflag is true by default, and false if --nocommit is given
+    # on commandline
     if commitflag:
         repo = git.Repo('.')
         index = repo.index
