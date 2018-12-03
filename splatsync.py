@@ -33,7 +33,7 @@ def load_config_file():
 
     config = configparser.RawConfigParser()
     with open(configfile, "r") as f:
-        config.readfp(f)
+        config.read_file(f)
     return config
 
 
@@ -96,8 +96,7 @@ def main(argv=None):
 
     # get the export from pinboard.in
     if fetchflag:
-        pinboardjson = urllib.request.URLopener()
-        pinboardjson.retrieve(baseurl + authpart, wget_target)
+        urllib.request.urlretrieve(baseurl + authpart, wget_target)
 
     # set up the staging area
     export_stage = config.get("backup", "export_stage")
