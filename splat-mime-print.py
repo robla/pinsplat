@@ -27,8 +27,21 @@ def get_json_from_mimemsg(mimemsg):
 
 def get_oneliner_from_mimemsg(mimemsg):
     outdict=dict(mimemsg.items())
+    desc=email.header.decode_header(outdict['description'])[0]
+    # decode_header returns a list of tuples, often with 'utf-8' as the
+    # second part of the tuple.  So if we get a tuple with something
+    # other than "None", we'll pass that along to Python3's str to get
+    # it converted to UTF-8
+    if(desc[1]):
+        outdict['description']=str(*desc)
+    else:
+        outdict['description']=desc[0]
+
     outdict['hash']=outdict['hash'][0:7]
-    outdict['href']=outdict['href'][8:25]
+    outdict['href']=outdict['href'].replace("https://", "")
+    outdict['href']=outdict['href'].replace("http://", "")
+    outdict['href']=outdict['href'].replace("www.", "")
+    outdict['href']=outdict['href'][0:25]
     outdict['time']=outdict['time'][0:10]
     tags=mimemsg['tags'].split(' ')
     outdict['tags']=' '.join(['#' + tag for tag in tags])
