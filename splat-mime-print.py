@@ -11,6 +11,7 @@ import json
 import os
 import signal
 import sys
+import pdb
 
 from io import open
 
@@ -51,6 +52,27 @@ def get_oneliner_from_mimemsg(mimemsg):
     return "{hash} - {time} - {href} - {description} - {tags:20.20} ".format(**outdict)
 
 
+def get_decoded_mimemsg(mimemsg):
+    retval=''
+    for header in mimemsg.items():
+        retval+=header[0]
+        retval+=': '
+        if(header[0]=='description'):
+            dheader=email.header.decode_header(header[1])
+            if(dheader[0][1]):
+                retval+=str(*dheader[0])
+            else:
+                retval+=dheader[0][0]
+        else:
+            retval+=header[1]
+        retval+="\n"
+    retval+="\n"
+    retval+=mimemsg.get_payload()
+    retval+="\n"
+
+    return retval
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
         description='Print pinsplat mime files in sane format')
@@ -59,6 +81,9 @@ def main(argv=None):
         'mimefiles', help='pinsplat.mime file', nargs='*', default=None)
     parser.add_argument('--json', '-j',
                         help='print as json',
+                        action="store_true")
+    parser.add_argument('--message', '-m',
+                        help='display message',
                         action="store_true")
     args = parser.parse_args()
     splatdir = os.environ.get('SPLATDIR')
@@ -79,6 +104,8 @@ def main(argv=None):
 
         if(args.json):
             print(get_json_from_mimemsg(mimemsg))
+        elif(args.message):
+            print(get_decoded_mimemsg(mimemsg))
         else:
             print(get_oneliner_from_mimemsg(mimemsg), flush=True)
 
