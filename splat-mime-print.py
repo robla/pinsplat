@@ -7,6 +7,7 @@ import argparse
 import email
 import fileinput
 import glob
+import json
 import os
 import signal
 import sys
@@ -22,7 +23,6 @@ def get_mimemsg_from_mimefile(mimefile):
 
 
 def get_json_from_mimemsg(mimemsg):
-    import json
     splatdict = dict(mimemsg.items())
     splatdict['extended'] = mimemsg.get_payload()
     return json.dumps(splatdict, indent=4)
