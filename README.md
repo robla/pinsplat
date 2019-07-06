@@ -35,7 +35,13 @@ Requires the following:
 
 Probably some other stuff too....
 
+Credits
+=======
+Most code written by Rob Lanphier.  The 2016 starting point was a script
+published by Ed Gauthier in 2012 as [pinboard_linkrot].
+
 [pinboard_export]: https://pinboard.in/export/
 [python_requests]: http://docs.python-requests.org/en/latest/
 [orgmode format]: https://karl-voit.at/2017/09/23/orgmode-as-markup-only/
 [base10x60timestamp]: https://github.com/robla/base10x60timestamp
+[pinboard_linkrot]: https://github.com/edgauthier/pinboard_linkrot
