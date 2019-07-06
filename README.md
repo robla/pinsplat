@@ -3,9 +3,16 @@ pinsplat - Splatter bookmarks file into little bitty ones.
 Overview
 ========
 
-Processes a [json formatted Pinboard export][pinboard_export] and tests each
-link to determine if it's reachable. Invalid links are reported, along with
-a reason, in markdown formatted text.
+Processes a [json formatted Pinboard export][pinboard_export] and splits
+each bookmark into a separate file.  The generated .json files are pretty
+much just a copy of the individual file.  The generated .mime files are
+named using a novel 8-letter domain abbreviation for a fully-qualified
+domain name (FQDN). They also use the [base10x60timestamp] in the name.
+
+Features I would like to implement one day:
+
+* Ability to edit a bookmark, and push the edited version to Pinboard
+* Export bookmarks into [orgmode format]
 
 Usage
 =====
@@ -22,9 +29,13 @@ Usage
 Dependencies
 ============
 
-Requires the Python [Requests][python_requests] module.
+Requires the following:
+* [python_requests] module.
+* [base10x60timestamp] module
+
+Probably some other stuff too....
 
 [pinboard_export]: https://pinboard.in/export/
 [python_requests]: http://docs.python-requests.org/en/latest/
-
-Probably some other stuff too....
+[orgmode format]: https://karl-voit.at/2017/09/23/orgmode-as-markup-only/
+[base10x60timestamp]: https://github.com/robla/base10x60timestamp
