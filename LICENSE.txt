@@ -1,5 +1,5 @@
-
-
+pinsplat - Provide text backup of Pinboard bookmarks
+Copyright (c) 2016-2019 Rob Lanphier
 
 Derived from https://github.com/edgauthier/pinboard_linkrot
 Copyright (c) 2012 Ed Gauthier

@@ -106,14 +106,14 @@ def process_bookmarks_file(filename, ignore_tags=[]):
 def parse_arguments():
     """ see http://docs.python.org/library/argparse """
     parser = argparse.ArgumentParser(
-        description='Splatter bookmarks file into little bitty ones. See zkw splatter for more')
+        description='Splatter bookmarks file into little bitty ones')
     parser.add_argument('bmkjson', help='bookmarks.json file', 
         nargs='?', default=None)
     return parser.parse_args()
 
 
 def main(argv=None):
-    """ zkw splatter"""
+    """Splatter bookmarks file into little bitty ones"""
 
     args = parse_arguments()
 

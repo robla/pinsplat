@@ -1,3 +1,5 @@
+pinsplat - Splatter bookmarks file into little bitty ones.
+
 Overview
 ========
 
@@ -8,12 +10,14 @@ a reason, in markdown formatted text.
 Usage
 =====
 
-    Usage: pinboard_linkrot.py <bookmarks.json> [space separated tags to ignore]
+    Usage: pinsplat [-h] [bmkjson]
 
-All arguments after the bookmarks file will be considered tags you want to
-ignore. Any bookmarks with these tags will be skipped. Usefull for
-bookmarklets that can't be validated or links only accessible from a network
-you're not currently connected to.
+    positional arguments:
+      bmkjson     bookmarks.json file
+
+    optional arguments:
+      -h, --help  show this help message and exit
+
 
 Dependencies
 ============
@@ -22,3 +26,5 @@ Requires the Python [Requests][python_requests] module.
 
 [pinboard_export]: https://pinboard.in/export/
 [python_requests]: http://docs.python-requests.org/en/latest/
+
+Probably some other stuff too....
