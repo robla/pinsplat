@@ -67,7 +67,7 @@ def main(argv=None):
 
     args = parse_arguments()
     fqdn = urllib.parse.urlparse(args.url).netloc
-    print(get_domain_abbr(fqdn))
+    print((get_domain_abbr(fqdn)))
 
 
 def test():
@@ -85,10 +85,10 @@ def test():
     for url in urls:
         fqdn = urllib.parse.urlparse(url).netloc
         print(fqdn)
-        print(get_domain_abbr(fqdn))
-        print(hashlib.sha1(fqdn.encode('utf-8')).hexdigest())
-        print(sha1_3char_abbr(fqdn))
-        print(struct.unpack('>H', hashlib.sha1(fqdn.encode('utf-8')).digest()[0:2]))
+        print((get_domain_abbr(fqdn)))
+        print((hashlib.sha1(fqdn.encode('utf-8')).hexdigest()))
+        print((sha1_3char_abbr(fqdn)))
+        print((struct.unpack('>H', hashlib.sha1(fqdn.encode('utf-8')).digest()[0:2])))
 
 
 if __name__ == '__main__':

@@ -41,7 +41,7 @@ def main(argv=None):
 
     ttup = dateutil.parser.parse(args.timestr).timetuple()
 
-    print(get_base64_time(ttup))
+    print((get_base64_time(ttup)))
 
 
 
